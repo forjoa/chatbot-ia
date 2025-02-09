@@ -1,42 +1,44 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import joblib
 import pandas as pd
 
 app = Flask(__name__)
 
-# load model
+# Cargar el modelo entrenado
 model = joblib.load('house_price_model.joblib')
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    # get form data
-    data = {
-        'id': 0, # todo: remove hardcoded id
-        'area': int(request.form['area']),
-        'bedrooms': int(request.form['bedrooms']),
-        'bathrooms': int(request.form['bathrooms']),
-        'stories': int(request.form['stories']),
-        'mainroad': 1 if request.form['mainroad'] == 'yes' else 0,
-        'guestroom': 1 if request.form['guestroom'] == 'yes' else 0,
-        'basement': 1 if request.form['basement'] == 'yes' else 0,
-        'hotwaterheating': 1 if request.form['hotwaterheating'] == 'yes' else 0,
-        'airconditioning': 1 if request.form['airconditioning'] == 'yes' else 0,
-        'parking': int(request.form['parking']),
-        'prefarea': 1 if request.form['prefarea'] == 'yes' else 0,
-        'furnished': request.form['furnished']
+@app.route('/chatpredict', methods=['POST'])
+def chatpredict():
+    data = request.get_json()
+    
+    # Convertir los datos recibidos al formato esperado por el modelo
+    data_dict = {
+        'id': 0,  # se puede mejorar quitando este campo si no es necesario
+        'area': int(data.get('area')),
+        'bedrooms': int(data.get('bedrooms')),
+        'bathrooms': int(data.get('bathrooms')),
+        'stories': int(data.get('stories')),
+        'mainroad': 1 if data.get('mainroad', '').strip().lower() == 'yes' else 0,
+        'guestroom': 1 if data.get('guestroom', '').strip().lower() == 'yes' else 0,
+        'basement': 1 if data.get('basement', '').strip().lower() == 'yes' else 0,
+        'hotwaterheating': 1 if data.get('hotwaterheating', '').strip().lower() == 'yes' else 0,
+        'airconditioning': 1 if data.get('airconditioning', '').strip().lower() == 'yes' else 0,
+        'parking': int(data.get('parking')),
+        'prefarea': 1 if data.get('prefarea', '').strip().lower() == 'yes' else 0,
+        'furnished': data.get('furnished')
     }
-
-    # convert to dataframe
-    df = pd.DataFrame([data])
-
-    # predict
+    
+    # Convertir a DataFrame
+    df = pd.DataFrame([data_dict])
+    
+    # Realizar la predicción
     prediction = model.predict(df)[0]
-
-    return render_template('result.html', prediction=prediction)
+    
+    return jsonify({'prediction': prediction})
 
 if __name__ == '__main__':
     app.run(debug=True)
