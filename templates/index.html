@@ -1,103 +1,178 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>Predicción de Precio de Vivienda</title>
+    <title>House price prediction</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", sans-serif;
+            background-color: #333;
+        }
+
+        h1 {
+            color: #fff;
+        }
+
+        body {
+            margin: auto;
+            width: 800px;
+            margin-top: 200px;
+        }
+
+        #chat-container {
+            border: 1px solid #666;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            height: 400px;
+            overflow-y: scroll;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #user-input-container {
+            display: flex;
+            align-items: center;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #666;
+            border-radius: 5px;
+            outline: none;
+            color: #fff;
+        }
+
+        #send-btn {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .message.bot {
+            margin-bottom: 10px;
+            text-align: left;
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+
+            & p {
+                color: #333;
+                padding: 10px;
+                border-radius: 5px;
+                background-color: #f0f0f0;
+                width: fit-content;
+            }
+        }
+
+        .message.user {
+            margin-bottom: 10px;
+            text-align: right;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+
+            & p {
+                color: white;
+                padding: 10px;
+                border-radius: 5px;
+                background-color: #4CAF50;
+                width: fit-content;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="container mx-auto p-4">
-        <div class="bg-white shadow-md rounded-lg w-full max-w-2xl mx-auto">
-            <div class="p-6 border-b">
-                <h2 class="text-2xl font-bold text-gray-800">Ingrese los datos de la vivienda</h2>
-                <p class="text-gray-500">Por favor, complete todos los campos requeridos.</p>
-            </div>
-            <form action="/predict" method="post" class="p-6 space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label for="area" class="block text-sm font-medium text-gray-700">Área (m²)</label>
-                        <input id="area" name="area" type="number" required class="p-2 p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    </div>
-                    <div class="space-y-2">
-                        <label for="bedrooms" class="block text-sm font-medium text-gray-700">Habitaciones</label>
-                        <input id="bedrooms" name="bedrooms" type="number" required class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    </div>
-                    <div class="space-y-2">
-                        <label for="bathrooms" class="block text-sm font-medium text-gray-700">Baños</label>
-                        <input id="bathrooms" name="bathrooms" type="number" required class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    </div>
-                    <div class="space-y-2">
-                        <label for="stories" class="block text-sm font-medium text-gray-700">Plantas</label>
-                        <input id="stories" name="stories" type="number" required class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    </div>
-                    <div class="space-y-2">
-                        <label for="mainroad" class="block text-sm font-medium text-gray-700">Calle Principal</label>
-                        <select name="mainroad" class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            <option value="">Seleccione</option>
-                            <option value="yes">Sí</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                    <div class="space-y-2">
-                        <label for="guestroom" class="block text-sm font-medium text-gray-700">Habitación Invitados</label>
-                        <select name="guestroom" class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            <option value="">Seleccione</option>
-                            <option value="yes">Sí</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                    <div class="space-y-2">
-                        <label for="basement" class="block text-sm font-medium text-gray-700">Sótano</label>
-                        <select name="basement" class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            <option value="">Seleccione</option>
-                            <option value="yes">Sí</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                    <div class="space-y-2">
-                        <label for="hotwaterheating" class="block text-sm font-medium text-gray-700">Calentador Agua</label>
-                        <select name="hotwaterheating" class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            <option value="">Seleccione</option>
-                            <option value="yes">Sí</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                    <div class="space-y-2">
-                        <label for="airconditioning" class="block text-sm font-medium text-gray-700">Aire Acondicionado</label>
-                        <select name="airconditioning" class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            <option value="">Seleccione</option>
-                            <option value="yes">Sí</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                    <div class="space-y-2">
-                        <label for="parking" class="block text-sm font-medium text-gray-700">Plazas Aparcamiento</label>
-                        <input id="parking" name="parking" type="number" required class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    </div>
-                    <div class="space-y-2">
-                        <label for="prefarea" class="block text-sm font-medium text-gray-700">Área Preferente</label>
-                        <select name="prefarea" class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            <option value="">Seleccione</option>
-                            <option value="yes">Sí</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                    <div class="space-y-2">
-                        <label for="furnished" class="block text-sm font-medium text-gray-700">Amueblado</label>
-                        <select name="furnished" class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            <option value="">Seleccione</option>
-                            <option value="furnished">Amueblado</option>
-                            <option value="semi-furnished">Semi-Amueblado</option>
-                            <option value="unfurnished">Sin Amueblar</option>
-                        </select>
-                    </div>
-                </div>
-                <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                    Predecir Precio
-                </button>
-            </form>
-        </div>
+
+<body>
+    <h1>Chatbot de Predicción de Precio de Vivienda</h1>
+    <div id="chat-container"></div>
+    <div id="user-input-container">
+        <input type="text" id="user-input" placeholder="Escribe tu respuesta aquí..." autofocus>
+        <button id="send-btn">Enviar</button>
     </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        const questions = [
+            { key: 'area', text: 'Ingrese el área de la vivienda en m²' },
+            { key: 'bedrooms', text: 'Ingrese el número de habitaciones' },
+            { key: 'bathrooms', text: 'Ingrese el número de baños' },
+            { key: 'stories', text: 'Ingrese el número de plantas' },
+            { key: 'mainroad', text: '¿Está la vivienda en una calle principal? (yes/no)' },
+            { key: 'guestroom', text: '¿Tiene habitación de invitados? (yes/no)' },
+            { key: 'basement', text: '¿Tiene sótano? (yes/no)' },
+            { key: 'hotwaterheating', text: '¿Tiene calentador de agua? (yes/no)' },
+            { key: 'airconditioning', text: '¿Tiene aire acondicionado? (yes/no)' },
+            { key: 'parking', text: 'Ingrese el número de plazas de aparcamiento' },
+            { key: 'prefarea', text: '¿Está en una zona preferente? (yes/no)' },
+            { key: 'furnished', text: '¿La vivienda está amueblada? (furnished, semi-furnished, unfurnished)' }
+        ];
+        let currentQuestion = 0;
+        let responses = {};
+
+        function addMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message', sender);
+            const msgP = document.createElement('p');
+            msgP.innerText = text;
+            msgDiv.appendChild(msgP);
+            chatContainer.appendChild(msgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function askNextQuestion() {
+            if (currentQuestion < questions.length) {
+                addMessage(questions[currentQuestion].text, 'bot');
+            } else {
+                addMessage('Procesando su información...', 'bot');
+                fetch('/chatpredict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(responses)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        addMessage('El precio estimado de la vivienda es: €' + data.prediction, 'bot');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        addMessage('Ocurrió un error al predecir el precio.', 'bot');
+                    });
+            }
+        }
+
+        sendBtn.addEventListener('click', () => {
+            const answer = userInput.value.trim();
+            if (!answer) return;
+            addMessage(answer, 'user');
+            if (currentQuestion < questions.length) {
+                responses[questions[currentQuestion].key] = answer;
+                currentQuestion++;
+                userInput.value = '';
+                setTimeout(askNextQuestion, 500);
+            }
+        });
+
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendBtn.click();
+        });
+
+        setTimeout(askNextQuestion, 500);
+    </script>
 </body>
+
 </html>
